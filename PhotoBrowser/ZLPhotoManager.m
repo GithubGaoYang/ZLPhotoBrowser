@@ -337,7 +337,7 @@ static BOOL _sortAscending;
         if (type == ZLAssetMediaTypeImage && !allowSelectImage) return;
         if (type == ZLAssetMediaTypeGif && !allowSelectImage) return;
         if (type == ZLAssetMediaTypeLivePhoto && !allowSelectImage) return;
-        if (type == ZLAssetMediaTypeVideo && !allowSelectVideo) return;
+        if (type == ZLAssetMediaTypeVideo && !allowSelectVideo && obj.duration >= 3) return;
         
         if (count == limit) {
             *stop = YES;

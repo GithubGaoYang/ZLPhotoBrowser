@@ -21,6 +21,9 @@
 //最大录制时长
 @property (nonatomic, assign) NSInteger maxRecordDuration;
 
+//最小录制时长
+@property (nonatomic, assign) NSInteger minRecordDuration;
+
 @property (nonatomic, assign) ZLCaptureSessionPreset sessionPreset;
 
 @property (nonatomic, assign) ZLExportVideoType videoType;

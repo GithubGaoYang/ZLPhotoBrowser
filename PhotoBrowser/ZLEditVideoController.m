@@ -408,7 +408,7 @@
     float duration = roundf(self.model.asset.duration);
     
     ZLPhotoConfiguration *configuration = [(ZLImageNavigationController *)self.navigationController configuration];
-    _interval = configuration.maxEditVideoTime/10.0;
+    _interval = MIN(configuration.maxEditVideoTime, duration)/10.0;
     
     _measureCount = (NSInteger)(duration / _interval);
     

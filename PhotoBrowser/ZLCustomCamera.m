@@ -11,7 +11,7 @@
 #import <CoreMotion/CoreMotion.h>
 #import "ZLPlayer.h"
 #import "ZLPhotoManager.h"
-
+#import "ToastUtils.h"
 
 #define kTopViewScale .5
 #define kBottomViewScale .7
@@ -871,13 +871,23 @@
 
 - (void)captureOutput:(AVCaptureFileOutput *)output didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray<AVCaptureConnection *> *)connections error:(NSError *)error
 {
-    if (CMTimeGetSeconds(output.recordedDuration) < 1) {
-        if (self.allowTakePhoto) {
-            //视频长度小于1s 允许拍照则拍照，不允许拍照，则保存小于1s的视频
-            NSLog(@"视频长度小于1s，按拍照处理");
-            [self onTakePicture];
-            return;
-        }
+//    if (CMTimeGetSeconds(output.recordedDuration) < 1) {
+//        if (self.allowTakePhoto) {
+//            //视频长度小于1s 允许拍照则拍照，不允许拍照，则保存小于1s的视频
+//            NSLog(@"视频长度小于1s，按拍照处理");
+//            [self onTakePicture];
+//            return;
+//        }
+//    }
+
+    if (CMTimeGetSeconds(output.recordedDuration) < self.minRecordDuration) {
+        ShowToastLong(@"视频最少需录制%ld秒", self.minRecordDuration);
+
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.toolView retake];
+        });
+
+        return;
     }
     
     self.videoUrl = outputFileURL;

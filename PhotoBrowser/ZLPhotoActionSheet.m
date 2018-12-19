@@ -313,7 +313,7 @@ double const ScalePhotoWidth = 1000;
 {
     [self.arrDataSources removeAllObjects];
     
-    [self.arrDataSources addObjectsFromArray:[ZLPhotoManager getAllAssetInPhotoAlbumWithAscending:NO limitCount:self.configuration.maxPreviewCount allowSelectVideo:self.configuration.allowSelectVideo allowSelectImage:self.configuration.allowSelectImage allowSelectGif:self.configuration.allowSelectGif allowSelectLivePhoto:self.configuration.allowSelectLivePhoto]];
+    [self.arrDataSources addObjectsFromArray:[ZLPhotoManager getAllAssetInPhotoAlbumWithAscending:NO limitCount:self.configuration.maxPreviewCount allowSelectVideo:self.configuration.allowSelectVideo allowSelectImage:self.configuration.allowSelectImage allowSelectGif:self.configuration.allowSelectGif allowSelectLivePhoto:self.configuration.allowSelectLivePhoto maxVideoDuration:self.configuration.maxVideoDuration minVideoDuration:self.configuration.minVideoDuration]];
     [ZLPhotoManager markSelectModelInArr:self.arrDataSources selArr:self.arrSelectedModels];
     [self.collectionView reloadData];
 }
@@ -515,6 +515,7 @@ double const ScalePhotoWidth = 1000;
         camera.videoType = self.configuration.exportVideoType;
         camera.circleProgressColor = self.configuration.bottomBtnsNormalTitleColor;
         camera.maxRecordDuration = self.configuration.maxRecordDuration;
+        camera.minRecordDuration = self.configuration.minRecordDuration;
         zl_weakify(self);
         camera.doneBlock = ^(UIImage *image, NSURL *videoUrl) {
             zl_strongify(weakSelf);
@@ -724,7 +725,7 @@ double const ScalePhotoWidth = 1000;
     BOOL allowSelImage = !(model.type==ZLAssetMediaTypeVideo)?YES:self.configuration.allowMixSelect;
     BOOL allowSelVideo = model.type==ZLAssetMediaTypeVideo?YES:self.configuration.allowMixSelect;
     
-    NSArray *arr = [ZLPhotoManager getAllAssetInPhotoAlbumWithAscending:self.configuration.sortAscending limitCount:NSIntegerMax allowSelectVideo:allowSelVideo allowSelectImage:allowSelImage allowSelectGif:self.configuration.allowSelectGif allowSelectLivePhoto:self.configuration.allowSelectLivePhoto];
+    NSArray *arr = [ZLPhotoManager getAllAssetInPhotoAlbumWithAscending:self.configuration.sortAscending limitCount:NSIntegerMax allowSelectVideo:allowSelVideo allowSelectImage:allowSelImage allowSelectGif:self.configuration.allowSelectGif allowSelectLivePhoto:self.configuration.allowSelectLivePhoto maxVideoDuration:self.configuration.maxVideoDuration minVideoDuration:self.configuration.minVideoDuration];
     
     NSMutableArray *selIdentifiers = [NSMutableArray array];
     for (ZLPhotoModel *m in self.arrSelectedModels) {
@@ -753,7 +754,7 @@ double const ScalePhotoWidth = 1000;
     //当前点击图片可编辑
     BOOL editImage = self.configuration.editAfterSelectThumbnailImage && self.configuration.allowEditImage && self.configuration.maxSelectCount == 1 && model.type < ZLAssetMediaTypeVideo;
     //当前点击视频可编辑
-    BOOL editVideo = self.configuration.editAfterSelectThumbnailImage && self.configuration.allowEditVideo && model.type == ZLAssetMediaTypeVideo && self.configuration.maxSelectCount == 1 && round(model.asset.duration) >= self.configuration.maxEditVideoTime;
+    BOOL editVideo = self.configuration.editAfterSelectThumbnailImage && self.configuration.allowEditVideo && model.type == ZLAssetMediaTypeVideo && self.configuration.maxSelectCount == 1 && round(model.asset.duration) >= self.configuration.minVideoDuration;
     //当前未选择图片 或已经选择了一张并且点击的是已选择的图片
     BOOL flag = self.arrSelectedModels.count == 0 || (self.arrSelectedModels.count == 1 && [self.arrSelectedModels.firstObject.asset.localIdentifier isEqualToString:model.asset.localIdentifier]);
     

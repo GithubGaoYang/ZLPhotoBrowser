@@ -82,7 +82,7 @@ typedef NS_ENUM(NSUInteger, SlideSelectType) {
         if (!_albumListModel) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 zl_weakify(self);
-                [ZLPhotoManager getCameraRollAlbumList:configuration.allowSelectVideo allowSelectImage:configuration.allowSelectImage complete:^(ZLAlbumListModel *album) {
+                [ZLPhotoManager getCameraRollAlbumList:configuration.allowSelectVideo allowSelectImage:configuration.allowSelectImage maxVideoDuration:configuration.maxVideoDuration minVideoDuration:configuration.minVideoDuration complete:^(ZLAlbumListModel *album) {
                     zl_strongify(weakSelf);
                     ZLImageNavigationController *weakNav = (ZLImageNavigationController *)strongSelf.navigationController;
                     
@@ -759,7 +759,7 @@ typedef NS_ENUM(NSUInteger, SlideSelectType) {
     //当前点击图片可编辑
     BOOL editImage = configuration.editAfterSelectThumbnailImage && configuration.allowEditImage && configuration.maxSelectCount == 1 && (model.type == ZLAssetMediaTypeImage || model.type == ZLAssetMediaTypeGif || model.type == ZLAssetMediaTypeLivePhoto);
     //当前点击视频可编辑
-    BOOL editVideo = configuration.editAfterSelectThumbnailImage && configuration.allowEditVideo && model.type == ZLAssetMediaTypeVideo && configuration.maxSelectCount == 1 && round(model.asset.duration) >= configuration.maxEditVideoTime;
+    BOOL editVideo = configuration.editAfterSelectThumbnailImage && configuration.allowEditVideo && model.type == ZLAssetMediaTypeVideo && configuration.maxSelectCount == 1 && round(model.asset.duration) >= configuration.minVideoDuration;
     //当前未选择图片 或 已经选择了一张并且点击的是已选择的图片
     BOOL flag = nav.arrSelectedModels.count == 0 || (nav.arrSelectedModels.count == 1 && [nav.arrSelectedModels.firstObject.asset.localIdentifier isEqualToString:model.asset.localIdentifier]);
     
@@ -794,7 +794,7 @@ typedef NS_ENUM(NSUInteger, SlideSelectType) {
     BOOL allowSelImage = !(model.type==ZLAssetMediaTypeVideo)?YES:configuration.allowMixSelect;
     BOOL allowSelVideo = model.type==ZLAssetMediaTypeVideo?YES:configuration.allowMixSelect;
     
-    NSArray *arr = [ZLPhotoManager getPhotoInResult:self.albumListModel.result allowSelectVideo:allowSelVideo allowSelectImage:allowSelImage allowSelectGif:configuration.allowSelectGif allowSelectLivePhoto:configuration.allowSelectLivePhoto];
+    NSArray *arr = [ZLPhotoManager getPhotoInResult:self.albumListModel.result allowSelectVideo:allowSelVideo allowSelectImage:allowSelImage allowSelectGif:configuration.allowSelectGif allowSelectLivePhoto:configuration.allowSelectLivePhoto maxVideoDuration:configuration.maxVideoDuration minVideoDuration:configuration.minVideoDuration];
     
     NSMutableArray *selIdentifiers = [NSMutableArray array];
     for (ZLPhotoModel *m in nav.arrSelectedModels) {
@@ -864,6 +864,7 @@ typedef NS_ENUM(NSUInteger, SlideSelectType) {
         camera.videoType = configuration.exportVideoType;
         camera.circleProgressColor = configuration.bottomBtnsNormalTitleColor;
         camera.maxRecordDuration = configuration.maxRecordDuration;
+        camera.minRecordDuration = configuration.minRecordDuration;
         zl_weakify(self);
         camera.doneBlock = ^(UIImage *image, NSURL *videoUrl) {
             zl_strongify(weakSelf);
@@ -949,7 +950,7 @@ typedef NS_ENUM(NSUInteger, SlideSelectType) {
         }
     }
     
-    self.albumListModel = [ZLPhotoManager getCameraRollAlbumList:configuration.allowSelectVideo allowSelectImage:configuration.allowSelectImage];
+    self.albumListModel = [ZLPhotoManager getCameraRollAlbumList:configuration.allowSelectVideo allowSelectImage:configuration.allowSelectImage maxVideoDuration:configuration.maxVideoDuration minVideoDuration:configuration.minVideoDuration];
     [self.collectionView reloadData];
     [self scrollToBottom];
     [self resetBottomBtnsStatus:YES];

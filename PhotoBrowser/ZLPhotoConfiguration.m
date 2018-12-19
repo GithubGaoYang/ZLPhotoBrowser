@@ -39,6 +39,7 @@
     configuration.allowSelectOriginal = YES;
     configuration.maxEditVideoTime = 10;
     configuration.maxVideoDuration = 120;
+    configuration.minVideoDuration = 0;
     configuration.allowSlideSelect = YES;
     configuration.allowDragSelect = NO;
     configuration.editType = ZLImageEditTypeClip | ZLImageEditTypeRotate | ZLImageEditTypeFilter;
@@ -65,6 +66,7 @@
     configuration.useSystemCamera = NO;
     configuration.allowRecordVideo = YES;
     configuration.maxRecordDuration = 10;
+    configuration.minRecordDuration = 1;
     configuration.sessionPreset = ZLCaptureSessionPreset1280x720;
     configuration.exportVideoType = ZLExportVideoTypeMov;
     
@@ -117,6 +119,11 @@
 - (void)setMaxRecordDuration:(NSInteger)maxRecordDuration
 {
     _maxRecordDuration = MAX(maxRecordDuration, 1);
+}
+
+- (void)setMinRecordDuration:(NSInteger)minRecordDuration
+{
+    _minRecordDuration = MAX(minRecordDuration, 1);
 }
 
 - (void)setEditType:(ZLImageEditType)editType

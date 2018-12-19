@@ -34,19 +34,19 @@
 /**
  * @brief 在全部照片中获取指定个数、排序方式的部分照片，在跳往预览大图界面时候video和gif均为no，不受参数影响
  */
-+ (NSArray<ZLPhotoModel *> *)getAllAssetInPhotoAlbumWithAscending:(BOOL)ascending limitCount:(NSInteger)limit allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto;
++ (NSArray<ZLPhotoModel *> *)getAllAssetInPhotoAlbumWithAscending:(BOOL)ascending limitCount:(NSInteger)limit allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration;
 
 
 /**
  * @brief 获取相机胶卷相册列表对象
  */
-+ (ZLAlbumListModel *)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage;
++ (ZLAlbumListModel *)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration;
 
 
 /**
  block 获取相机胶卷相册列表对象
  */
-+ (void)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage complete:(void (^)(ZLAlbumListModel *album))complete;
++ (void)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage  maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration complete:(void (^)(ZLAlbumListModel *album))complete;
 
 /**
  * @brief 获取用户所有相册列表
@@ -56,7 +56,7 @@
 /**
  * @brief 将result中对象转换成ZLPhotoModel
  */
-+ (NSArray<ZLPhotoModel *> *)getPhotoInResult:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto;
++ (NSArray<ZLPhotoModel *> *)getPhotoInResult:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration;
 
 /**
  * @brief 获取选中的图片

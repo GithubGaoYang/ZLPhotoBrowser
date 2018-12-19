@@ -120,17 +120,17 @@ static BOOL _sortAscending;
 }
 
 #pragma mark - 在全部照片中获取指定个数、排序方式的部分照片
-+ (NSArray<ZLPhotoModel *> *)getAllAssetInPhotoAlbumWithAscending:(BOOL)ascending limitCount:(NSInteger)limit allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto
++ (NSArray<ZLPhotoModel *> *)getAllAssetInPhotoAlbumWithAscending:(BOOL)ascending limitCount:(NSInteger)limit allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration
 {
     PHFetchOptions *option = [[PHFetchOptions alloc] init];
     //ascending 为YES时，按照照片的创建时间升序排列;为NO时，则降序排列
     if (!ascending) option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:ascending]];
     PHFetchResult *result = [PHAsset fetchAssetsWithOptions:option];
     
-    return [self getPhotoInResult:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage allowSelectGif:allowSelectGif allowSelectLivePhoto:allowSelectLivePhoto limitCount:limit];
+    return [self getPhotoInResult:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage allowSelectGif:allowSelectGif allowSelectLivePhoto:allowSelectLivePhoto limitCount:limit maxVideoDuration:maxVideoDuration minVideoDuration:minVideoDuration];
 }
 
-+ (ZLAlbumListModel *)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage
++ (ZLAlbumListModel *)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration
 {
     PHFetchOptions *option = [[PHFetchOptions alloc] init];
     if (!allowSelectVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
@@ -144,21 +144,21 @@ static BOOL _sortAscending;
         //获取相册内asset result
         if (collection.assetCollectionSubtype == 209) {
             PHFetchResult<PHAsset *> *result = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            m = [self getAlbumModeWithTitle:[self getCollectionTitle:collection] result:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage];
+            m = [self getAlbumModeWithTitle:[self getCollectionTitle:collection] result:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage maxVideoDuration:maxVideoDuration minVideoDuration:minVideoDuration];
             m.isCameraRoll = YES;
         }
     }];
     return m;
 }
 
-+ (void)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage complete:(void (^)(ZLAlbumListModel *))complete
++ (void)getCameraRollAlbumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration complete:(void (^)(ZLAlbumListModel *))complete
 {
     if (complete) {
-        complete([self getCameraRollAlbumList:allowSelectVideo allowSelectImage:allowSelectImage]);
+        complete([self getCameraRollAlbumList:allowSelectVideo allowSelectImage:allowSelectImage maxVideoDuration:maxVideoDuration minVideoDuration:minVideoDuration]);
     }
 }
 
-+ (void)getPhotoAblumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage complete:(void (^)(NSArray<ZLAlbumListModel *> *))complete
++ (void)getPhotoAblumList:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration complete:(void (^)(NSArray<ZLAlbumListModel *> *))complete
 {
     if (!allowSelectImage && !allowSelectVideo) {
         if (complete) complete(nil);
@@ -223,11 +223,11 @@ static BOOL _sortAscending;
             
             if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
                 //所有照片
-                ZLAlbumListModel *m = [self getAlbumModeWithTitle:title result:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage];
+                ZLAlbumListModel *m = [self getAlbumModeWithTitle:title result:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage maxVideoDuration:maxVideoDuration minVideoDuration:minVideoDuration];
                 m.isCameraRoll = YES;
                 [arrAlbum insertObject:m atIndex:0];
             } else {
-                [arrAlbum addObject:[self getAlbumModeWithTitle:title result:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage]];
+                [arrAlbum addObject:[self getAlbumModeWithTitle:title result:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage maxVideoDuration:maxVideoDuration minVideoDuration:minVideoDuration]];
             }
         }];
     }
@@ -304,7 +304,7 @@ static BOOL _sortAscending;
 }
 
 //获取相册列表model
-+ (ZLAlbumListModel *)getAlbumModeWithTitle:(NSString *)title result:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage
++ (ZLAlbumListModel *)getAlbumModeWithTitle:(NSString *)title result:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration
 {
     ZLAlbumListModel *model = [[ZLAlbumListModel alloc] init];
     model.title = title;
@@ -316,18 +316,18 @@ static BOOL _sortAscending;
         model.headImageAsset = result.firstObject;
     }
     //为了获取所有asset gif设置为yes
-    model.models = [ZLPhotoManager getPhotoInResult:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage allowSelectGif:allowSelectImage allowSelectLivePhoto:allowSelectImage];
+    model.models = [ZLPhotoManager getPhotoInResult:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage allowSelectGif:allowSelectImage allowSelectLivePhoto:allowSelectImage maxVideoDuration:maxVideoDuration minVideoDuration:minVideoDuration];
     
     return model;
 }
 
 #pragma mark - 根据照片数组对象获取对应photomodel数组
-+ (NSArray<ZLPhotoModel *> *)getPhotoInResult:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto
++ (NSArray<ZLPhotoModel *> *)getPhotoInResult:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration
 {
-    return [self getPhotoInResult:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage allowSelectGif:allowSelectGif allowSelectLivePhoto:allowSelectLivePhoto limitCount:NSIntegerMax];
+    return [self getPhotoInResult:result allowSelectVideo:allowSelectVideo allowSelectImage:allowSelectImage allowSelectGif:allowSelectGif allowSelectLivePhoto:allowSelectLivePhoto limitCount:NSIntegerMax maxVideoDuration:maxVideoDuration minVideoDuration:minVideoDuration];
 }
 
-+ (NSArray<ZLPhotoModel *> *)getPhotoInResult:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto limitCount:(NSInteger)limit
++ (NSArray<ZLPhotoModel *> *)getPhotoInResult:(PHFetchResult<PHAsset *> *)result allowSelectVideo:(BOOL)allowSelectVideo allowSelectImage:(BOOL)allowSelectImage allowSelectGif:(BOOL)allowSelectGif allowSelectLivePhoto:(BOOL)allowSelectLivePhoto limitCount:(NSInteger)limit maxVideoDuration:(NSInteger)maxVideoDuration minVideoDuration:(NSInteger)minVideoDuration
 {
     NSMutableArray<ZLPhotoModel *> *arrModel = [NSMutableArray array];
     __block NSInteger count = 1;
@@ -337,16 +337,22 @@ static BOOL _sortAscending;
         if (type == ZLAssetMediaTypeImage && !allowSelectImage) return;
         if (type == ZLAssetMediaTypeGif && !allowSelectImage) return;
         if (type == ZLAssetMediaTypeLivePhoto && !allowSelectImage) return;
-        if (type == ZLAssetMediaTypeVideo && !allowSelectVideo && obj.duration >= 3) return;
-        
+        if (type == ZLAssetMediaTypeVideo && !allowSelectVideo) return;
+        if (type == ZLAssetMediaTypeVideo && (obj.duration > maxVideoDuration || obj.duration < minVideoDuration)) return;
+
         if (count == limit) {
             *stop = YES;
         }
-        
-        NSString *duration = [self getDuration:obj];
-        
-        [arrModel addObject:[ZLPhotoModel modelWithAsset:obj type:type duration:duration]];
-        count++;
+
+        if (type == ZLAssetMediaTypeVideo && obj.duration < 5) {
+            
+        } else {
+            NSString *duration = [self getDuration:obj];
+
+            [arrModel addObject:[ZLPhotoModel modelWithAsset:obj type:type duration:duration]];
+            count++;
+        }
+
     }];
     return arrModel;
 }

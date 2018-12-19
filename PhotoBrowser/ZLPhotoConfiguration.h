@@ -115,6 +115,11 @@
 @property (nonatomic, assign) NSInteger maxVideoDuration;
 
 /**
+ 允许选择视频的最小时长，单位：秒， 默认 0s
+ */
+@property (nonatomic, assign) NSInteger minVideoDuration;
+
+/**
  是否允许滑动选择 默认 YES
  */
 @property (nonatomic, assign) BOOL allowSlideSelect;
@@ -236,6 +241,11 @@
  最大录制时长，默认 10s，最小为 1s
  */
 @property (nonatomic, assign) NSInteger maxRecordDuration;
+
+/**
+ 最小录制时长，默认 1s，最小为 1s
+ */
+@property (nonatomic, assign) NSInteger minRecordDuration;
 
 /**
  视频清晰度，默认ZLCaptureSessionPreset1280x720
